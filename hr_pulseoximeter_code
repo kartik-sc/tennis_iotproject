@@ -1,0 +1,44 @@
+#include <Wire.h>
+#include "MAX30100_PulseOximeter.h"
+
+#define REPORTING_PERIOD_MS 1000
+
+PulseOximeter pox;
+uint32_t tsLastReport = 0;
+
+void setup() {
+  Serial.begin(115200);
+  Serial.println();
+  Serial.println("Initializing MAX30100...");
+
+  // I²C pins: SDA = D2 (GPIO4), SCL = D1 (GPIO5)
+  Wire.begin(4, 5);
+  delay(50);
+
+  if (pox.begin()) {
+    Serial.println("MAX30100 initialized!");
+    pox.setIRLedCurrent(MAX30100_LED_CURR_7_6MA);
+  } else {
+    Serial.println("FAILED to initialize MAX30100. Check wiring!");
+    while (1) delay(1000);
+  }
+}
+
+void loop() {
+  pox.update();
+
+  if (millis() - tsLastReport >= REPORTING_PERIOD_MS) {
+    float hr  = pox.getHeartRate();
+    float spO2 = pox.getSpO2();
+
+    Serial.print("Heart Rate: ");
+    Serial.print(hr, 1);
+    Serial.print(" bpm    |    SpO2: ");
+    Serial.print(spO2, 1);
+    Serial.println(" %");
+
+    tsLastReport = millis();
+  }
+
+  delay(10);
+}
