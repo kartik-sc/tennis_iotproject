@@ -1,0 +1,43 @@
+#include <Wire.h>
+#include <MPU6050.h>
+#include <math.h>
+
+MPU6050 mpu;
+
+void setup() {
+  Serial.begin(115200);
+  Wire.begin(4, 5);  // ESP8266: SDA = D2, SCL = D1
+  delay(100);
+
+  Serial.println("Initializing MPU6050...");
+  mpu.initialize();
+
+  if (mpu.testConnection()) {
+    Serial.println("MPU6050 connection successful.");
+  } else {
+    Serial.println("MPU6050 connection failed. Continuing anyway.");
+  }
+}
+
+void loop() {
+  int16_t ax, ay, az;
+  int16_t gx, gy, gz;
+
+  mpu.getAcceleration(&ax, &ay, &az);
+  mpu.getRotation(&gx, &gy, &gz);
+
+  float ax_g = ax / 16384.0;
+  float ay_g = ay / 16384.0;
+  float az_g = az / 16384.0;
+
+  float pitch = atan2(ax_g, sqrt(ay_g * ay_g + az_g * az_g)) * 180 / PI;
+  float roll  = atan2(ay_g, sqrt(ax_g * ax_g + az_g * az_g)) * 180 / PI;
+
+  Serial.println("======== MPU6050 ========");
+  Serial.print("Pitch: "); Serial.print(pitch); Serial.println("°");
+  Serial.print("Roll:  "); Serial.print(roll); Serial.println("°");
+  Serial.println("-------------------------");
+
+  delay(500);  // This is enough time for WDT to reset internally
+  yield();     // Force feed the watchdog
+}
