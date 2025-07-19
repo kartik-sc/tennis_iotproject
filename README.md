@@ -1,4 +1,4 @@
-# 🎯 MPU6050-Based Motion Classification with ESP8266
+# 🎯 Motion Classification for Tennis-Swing Analysis
 
 This project demonstrates how to interface the MPU6050 6-axis accelerometer & gyroscope with the ESP8266 to collect motion data (pitch, roll, acceleration), visualize it, and build a machine learning model to classify motions or postures.
 
